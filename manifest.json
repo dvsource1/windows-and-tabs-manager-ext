@@ -1,11 +1,17 @@
 {
-  "name": "Vite Sample Extension",
+  "name": "Window & Tabs Manager",
   "version": "1.0.0",
-  "description": "This is a Vite Sample Extension",
+  "description": "This is a Window & Tabs Manager",
   "manifest_version": 3,
   "author": "dvsource",
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
   "action": {
     "default_popup": "index.html",
-    "default_title": "Vite Sample Extension"
+    "default_title": "Window & Tabs Manager"
   }
 }
