@@ -4,6 +4,7 @@
   "description": "This is a Window & Tabs Manager",
   "manifest_version": 3,
   "author": "dvsource",
+  "permissions": ["system.display", "tabs"],
   "icons": {
     "16": "icon16.png",
     "32": "icon32.png",

@@ -10,7 +10,11 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.204",
     "typescript": "^4.9.3",
     "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }
