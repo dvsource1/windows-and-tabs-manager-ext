@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --sourcemap=true",
     "build-ext": "yarn build && cp manifest.json dist/",
     "preview": "vite preview"
   },

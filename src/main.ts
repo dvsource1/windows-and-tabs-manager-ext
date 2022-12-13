@@ -1,18 +1,50 @@
 import * as _ from "lodash";
+import { getAllWindows, removeWindowId } from "./api/windows";
+import { map_monitorsAndWindows } from "./mapper";
 import "./style.css";
+import { Action, view_actions } from "./ui/actions";
+import { view_windows } from "./ui/windows";
 
 const getAllMonitors = async () => {
   const monitors = await chrome.system.display.getInfo();
   console.log(monitors);
   return monitors;
 };
-const getAllWindows = async () => {
-  const windows = await chrome.windows.getAll({ populate: true });
+const getAllWindowsWithTabs = async () => {
+  const windows = await getAllWindows({ populate: true });
   console.log(windows);
   return windows;
 };
+const getAllNoneNormalWindows = async () => {
+  const windows = await getAllWindows({
+    windowTypes: ["panel", "popup", "devtools", "app"],
+  });
+  console.log(windows);
+  return windows;
+};
+const mapMonitorsAndWindows = async () => {
+  const monitors = await getAllMonitors();
+  const windows = await getAllWindowsWithTabs();
 
-const actions = [
+  return map_monitorsAndWindows(monitors, windows);
+};
+const displayWindows = async () => {
+  const monitersWithWindows = await mapMonitorsAndWindows();
+  view_windows(containerElm, monitersWithWindows);
+};
+const removePopupPanels = async () => {
+  const windows = await getAllNoneNormalWindows();
+  if (!_.isEmpty(windows)) {
+    _.forEach(windows, async (window) => {
+      console.log("remove window: ", window);
+      removeWindowId(window.id);
+    });
+  }
+};
+
+// ACTIONS
+
+const actions: Action[] = [
   {
     id: "getAllMonitors",
     name: "getAllMonitors",
@@ -21,16 +53,26 @@ const actions = [
   {
     id: "getAllWindows",
     name: "getAllWindows",
-    callback: getAllWindows,
+    callback: getAllWindowsWithTabs,
+  },
+  {
+    id: "mapMonitorsAndWindows",
+    name: "mapMonitorsAndWindows",
+    callback: mapMonitorsAndWindows,
+  },
+  {
+    id: "displayWindows",
+    name: "displayWindows",
+    callback: displayWindows,
+  },
+  {
+    id: "removePopupPanels",
+    name: "removePopupPanels",
+    callback: removePopupPanels,
   },
 ];
 
-const container = document.getElementById("app");
+// DOM
 
-_.forEach(actions, (action) => {
-  const button = document.createElement("button");
-  button.append(document.createTextNode(action.name));
-  button.setAttribute("id", action.id);
-  button.addEventListener("click", action.callback);
-  container.append(button);
-});
+const containerElm = document.getElementById("app") as HTMLDivElement;
+view_actions(containerElm, actions);
