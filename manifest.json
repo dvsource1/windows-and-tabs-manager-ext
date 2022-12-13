@@ -1,0 +1,11 @@
+{
+  "name": "Vite Sample Extension",
+  "version": "1.0.0",
+  "description": "This is a Vite Sample Extension",
+  "manifest_version": 3,
+  "author": "dvsource",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Vite Sample Extension"
+  }
+}
