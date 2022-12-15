@@ -37,11 +37,20 @@ h1 {
   line-height: 1.1;
 }
 
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.actions-container button {
+  background-color: #535bf2;
+}
+
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
+  width: fit-content;
   padding: 2rem;
-  text-align: center;
+  margin: 0 auto;
 }
 
 @media (prefers-color-scheme: light) {

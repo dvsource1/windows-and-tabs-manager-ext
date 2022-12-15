@@ -4,6 +4,9 @@ export const view_windows = async (
   parent: HTMLDivElement,
   monitersWithWindows
 ) => {
+  const container = document.createElement("div");
+  container.classList.add(...["canvas-container"]);
+
   const c = document.createElement("canvas");
   c.setAttribute("style", "border:1px solid #d3d3d3;");
 
@@ -25,7 +28,6 @@ export const view_windows = async (
       }
     });
   }
-  console.log(maxWidth, maxHeight);
   c.setAttribute("width", `${maxWidth / 10}`);
   c.setAttribute("height", `${maxHeight / 10}`);
   c.setAttribute("style", "border:1px solid #d3d3d3;");
@@ -42,5 +44,6 @@ export const view_windows = async (
   });
 
   ctx.stroke();
-  parent.append(c);
+  container.append(c);
+  parent.append(container);
 };

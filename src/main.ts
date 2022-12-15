@@ -9,19 +9,16 @@ import { getDomain } from "./util";
 
 const getAllMonitors = async () => {
   const monitors = await chrome.system.display.getInfo();
-  console.log(monitors);
   return monitors;
 };
 const getAllWindowsWithTabs = async () => {
   const windows = await getAllWindows({ populate: true });
-  console.log(windows);
   return windows;
 };
 const getAllNoneNormalWindows = async () => {
   const windows = await getAllWindows({
     windowTypes: ["panel", "popup", "devtools", "app"],
   });
-  console.log(windows);
   return windows;
 };
 const mapMonitorsAndWindows = async () => {
@@ -38,7 +35,6 @@ const removePopupPanels = async () => {
   const windows = await getAllNoneNormalWindows();
   if (!_.isEmpty(windows)) {
     _.forEach(windows, async (window) => {
-      console.log("remove window: ", window);
       removeWindowId(window.id);
     });
   }
@@ -48,9 +44,6 @@ const createTabsMap = async (tabs) => {
   const tabGroups = new Map<string, Tab[]>();
 
   _.forEach(tabs, async (tab) => {
-    const { url, favIconUrl } = tab;
-    console.log(url, favIconUrl);
-
     const domain = getDomain(tab.url);
 
     if (!tabGroups.has(domain)) {
@@ -79,8 +72,7 @@ const sortTabs = async () => {
 
   const tabGroups = await createTabsMap(tabs);
 
-  tabGroups.forEach((tg, key) => {
-    console.log(key, tg);
+  tabGroups.forEach((tg, __) => {
     _.forEach(tg, (tgg) => {
       chrome.tabs.move(tgg.id, { index: -1 });
     });

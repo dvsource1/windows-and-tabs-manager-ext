@@ -14,6 +14,7 @@ export const view_actions = (parent: HTMLDivElement, actions: Action[]) => {
 
 const _getActions = (actions: Action[]): HTMLDivElement => {
   const actionsElm = document.createElement("div");
+  actionsElm.classList.add(...["actions-container"]);
 
   _.forEach(actions, (action) => {
     if (!action.disable) {

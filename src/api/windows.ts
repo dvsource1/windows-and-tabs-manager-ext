@@ -8,9 +8,7 @@ export const removeWindowId = (windowId: number) => {
   try {
     chrome.windows
       .remove(windowId)
-      .then((w) => {
-        console.log("removed: w:", w);
-      })
+      // .then((w) => {})
       .catch((we) => {
         console.error(we);
       });
