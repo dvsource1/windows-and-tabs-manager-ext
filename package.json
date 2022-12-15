@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@types/psl": "^1.1.0",
-    "fast-average-color": "^9.1.1",
     "lodash": "^4.17.21",
     "psl": "^1.9.0"
   }

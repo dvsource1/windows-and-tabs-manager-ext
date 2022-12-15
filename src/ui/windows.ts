@@ -25,7 +25,6 @@ export const view_windows = async (
       }
     });
   }
-  console.log(maxWidth, maxHeight);
   c.setAttribute("width", `${maxWidth / 10}`);
   c.setAttribute("height", `${maxHeight / 10}`);
   c.setAttribute("style", "border:1px solid #d3d3d3;");
