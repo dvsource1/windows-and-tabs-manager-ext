@@ -32,11 +32,13 @@ export const view_windows = async (
   _.forEach(monitorBounds, (monitorBound) => {
     const { left, top, width, height, windows } = monitorBound;
     ctx.rect(left / 10, top / 10, width / 10, height / 10);
-    ctx.fillText(
-      windows.map((w) => `id: ${w.id}, n_tabs: ${w.tabs?.length}`).join("\n"),
-      left / 10,
-      (top + height) / 10
-    );
+    _.forEach(windows, (window, i) => {
+      ctx.fillText(
+        `id: ${window.id}, n_tabs: ${window.tabs?.length}`,
+        left / 10 + 2,
+        (top + height) / 10 - i * 10 - 2
+      );
+    });
   });
 
   ctx.stroke();

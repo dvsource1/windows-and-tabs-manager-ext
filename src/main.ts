@@ -105,6 +105,34 @@ const groupTabs = async () => {
   });
 };
 
+const mergeToCurrentWindows = async () => {
+  const currentWindow = await chrome.windows.getCurrent({ populate: true });
+  currentWindow.id;
+
+  const monitersWithWindows = await mapMonitorsAndWindows();
+  await _.forEach(monitersWithWindows, async (mw) => {
+    if (!_.isEmpty(mw.windows)) {
+      await _.forEach(mw.windows, async (win) => {
+        if (win.id === currentWindow.id && mw.windows.length > 1) {
+          const otherWindows = mw.windows.filter(
+            (ww) => ww.id !== currentWindow.id
+          );
+
+          await _.forEach(otherWindows, async (ow) => {
+            await _.forEach(ow.tabs, async (owt) => {
+              await chrome.tabs.move(owt.id, {
+                windowId: currentWindow.id,
+                index: -1,
+              });
+            });
+          });
+        }
+      });
+    }
+  });
+  await sortTabs();
+};
+
 // ACTIONS
 
 const actions: Action[] = [
@@ -150,6 +178,11 @@ const actions: Action[] = [
     id: "groupTabs",
     name: "groupTabs",
     callback: groupTabs,
+  },
+  {
+    id: "mergeToCurrentWindows",
+    name: "mergeToCurrentWindows",
+    callback: mergeToCurrentWindows,
   },
 ];
 

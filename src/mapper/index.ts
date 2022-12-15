@@ -8,7 +8,7 @@ export const map_monitorsAndWindows = (monitors, windows) => {
       _.forEach(windows, (window) => {
         const { left: x, top: y } = window;
         if (left <= x && x < left + width && top <= y && y < top + height) {
-          _.get(monitor, "windows").push(monitor);
+          _.get(monitor, "windows").push(window);
         }
       });
     });
