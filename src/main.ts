@@ -1,9 +1,11 @@
 import * as _ from "lodash";
+import { Tab } from "./@types/tabs";
 import { getAllWindows, removeWindowId } from "./api/windows";
 import { map_monitorsAndWindows } from "./mapper";
 import "./style.css";
 import { Action, view_actions } from "./ui/actions";
 import { view_windows } from "./ui/windows";
+import { getDomain } from "./util";
 
 const getAllMonitors = async () => {
   const monitors = await chrome.system.display.getInfo();
@@ -42,22 +44,86 @@ const removePopupPanels = async () => {
   }
 };
 
+const createTabsMap = async (tabs) => {
+  const tabGroups = new Map<string, Tab[]>();
+
+  _.forEach(tabs, async (tab) => {
+    const { url, favIconUrl } = tab;
+    console.log(url, favIconUrl);
+
+    const domain = getDomain(tab.url);
+
+    if (!tabGroups.has(domain)) {
+      tabGroups.set(domain, []);
+    }
+    tabGroups.get(domain).push(tab);
+  });
+  return tabGroups;
+};
+
+const getCurrentWindowTabs = async () => {
+  const currentWindow = await chrome.windows.getCurrent({ populate: true });
+  return currentWindow.tabs;
+};
+
+const getTabs = async () => {
+  const tabs = await getCurrentWindowTabs();
+  console.log(tabs);
+
+  const tabGroups = await createTabsMap(tabs);
+  console.log(tabGroups);
+};
+
+const sortTabs = async () => {
+  const tabs = await getCurrentWindowTabs();
+
+  const tabGroups = await createTabsMap(tabs);
+
+  tabGroups.forEach((tg, key) => {
+    console.log(key, tg);
+    _.forEach(tg, (tgg) => {
+      chrome.tabs.move(tgg.id, { index: -1 });
+    });
+  });
+};
+
+const groupTabs = async () => {
+  const tabs = await getCurrentWindowTabs();
+
+  const tabGroups = await createTabsMap(tabs);
+  tabGroups.forEach((tbs) => {
+    if (tbs.length > 1) {
+      chrome.tabs.group({ tabIds: _.map(tbs, "id") });
+    }
+  });
+
+  const newTabs = await getCurrentWindowTabs();
+  newTabs.forEach((t) => {
+    if (t.groupId === -1) {
+      chrome.tabs.move(t.id, { index: -1 });
+    }
+  });
+};
+
 // ACTIONS
 
 const actions: Action[] = [
   {
     id: "getAllMonitors",
     name: "getAllMonitors",
+    disable: true,
     callback: getAllMonitors,
   },
   {
     id: "getAllWindows",
     name: "getAllWindows",
+    disable: true,
     callback: getAllWindowsWithTabs,
   },
   {
     id: "mapMonitorsAndWindows",
     name: "mapMonitorsAndWindows",
+    disable: true,
     callback: mapMonitorsAndWindows,
   },
   {
@@ -69,6 +135,21 @@ const actions: Action[] = [
     id: "removePopupPanels",
     name: "removePopupPanels",
     callback: removePopupPanels,
+  },
+  {
+    id: "getTabs",
+    name: "getTabs",
+    callback: getTabs,
+  },
+  {
+    id: "sortTabs",
+    name: "sortTabs",
+    callback: sortTabs,
+  },
+  {
+    id: "groupTabs",
+    name: "groupTabs",
+    callback: groupTabs,
   },
 ];
 

@@ -137,6 +137,21 @@
   resolved "https://registry.npmjs.org/@types/har-format/-/har-format-1.2.10.tgz"
   integrity sha512-o0J30wqycjF5miWDKYKKzzOU1ZTLuA42HZ4HE7/zqTOc/jTLdQ5NhYWvsRQo45Nfi1KHoRdNhteSI4BAxTF1Pg==
 
+"@types/node@^18.11.15":
+  version "18.11.15"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.15.tgz#de0e1fbd2b22b962d45971431e2ae696643d3f5d"
+  integrity sha512-VkhBbVo2+2oozlkdHXLrb3zjsRkpdnaU2bXmX8Wgle3PUi569eLRaHGlgETQHR7lLL1w7GiG3h9SnePhxNDecw==
+
+"@types/offscreencanvas@^2019.7.0":
+  version "2019.7.0"
+  resolved "https://registry.yarnpkg.com/@types/offscreencanvas/-/offscreencanvas-2019.7.0.tgz#e4a932069db47bb3eabeb0b305502d01586fa90d"
+  integrity sha512-PGcyveRIpL1XIqK8eBsmRBt76eFgtzuPiSTyKHZxnGemp2yzGzWpjYKAfK3wIMiU7eH+851yEpiuP8JZerTmWg==
+
+"@types/psl@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/psl/-/psl-1.1.0.tgz#390c5df1613b166ce3c3eb9fda4d93dc3eeec7b5"
+  integrity sha512-HhZnoLAvI2koev3czVPzBNRYvdrzJGLjQbWZhqFmS9Q6a0yumc5qtfSahBGb5g+6qWvA8iiQktqGkwoIXa/BNQ==
+
 esbuild@^0.16.3:
   version "0.16.4"
   resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.16.4.tgz"
@@ -164,6 +179,13 @@ esbuild@^0.16.3:
     "@esbuild/win32-arm64" "0.16.4"
     "@esbuild/win32-ia32" "0.16.4"
     "@esbuild/win32-x64" "0.16.4"
+
+fast-average-color@^9.1.1:
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/fast-average-color/-/fast-average-color-9.1.1.tgz#7b2cb70a904b848e7d347b3e3612fbd84a535ca2"
+  integrity sha512-PJizLBcGb/jqUzrH66385te4+GcOK7wcUiCDvBUszdpzc/pvV1kwifvvsFygV3mS+7qwnWmK9/BrZniaOOC9ag==
+  dependencies:
+    "@types/offscreencanvas" "^2019.7.0"
 
 fsevents@~2.3.2:
   version "2.3.2"
@@ -217,6 +239,11 @@ postcss@^8.4.20:
     nanoid "^3.3.4"
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
+
+psl@^1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/psl/-/psl-1.9.0.tgz#d0df2a137f00794565fcaf3b2c00cd09f8d5a5a7"
+  integrity sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==
 
 resolve@^1.22.1:
   version "1.22.1"
