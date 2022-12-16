@@ -1,6 +1,4 @@
-import { QueryOptions } from "../@types/windows";
-
-export const getAllWindows = (queryOptions?: Partial<QueryOptions>) => {
+export const getAllWindows = (queryOptions?: chrome.windows.QueryOptions) => {
   return chrome.windows.getAll(queryOptions);
 };
 
@@ -15,4 +13,4 @@ export const removeWindowId = (windowId: number) => {
   } catch (error) {
     console.error(error);
   }
-}; 
+};
