@@ -1,33 +1,25 @@
 import * as _ from "lodash";
-import { getAllWindows, removeWindowId } from "./api/windows";
-import { map_monitorsAndWindows } from "./mapper";
+import { collapseTabGroup, groupTabs, moveTab } from "./api/tabs";
+import { getCurrentWindow, removeWindowId } from "./api/windows";
 import "./style.css";
 import { Action, view_actions } from "./ui/actions";
 import { view_windows } from "./ui/windows";
-import { getDomain } from "./util";
+import {
+  getCurrentWindowTabs,
+  getTabGroups,
+  groupTabsByDomain,
+} from "./util/tab-utils";
+import {
+  getAllMonitors,
+  getAllNoneNormalWindows,
+  getAllWindowsWithTabs,
+  mapMonitorsAndWindows,
+} from "./util/window-utils";
 
-const getAllMonitors = async () => {
-  const monitors = await chrome.system.display.getInfo();
-  return monitors;
-};
-const getAllWindowsWithTabs = async () => {
-  const windows = await getAllWindows({ populate: true });
-  return windows;
-};
-const getAllNoneNormalWindows = async () => {
-  const windows = await getAllWindows({
-    windowTypes: ["panel", "popup", "devtools", "app"],
-  });
-  return windows;
-};
-const mapMonitorsAndWindows = async () => {
+const displayWindows = async () => {
   const monitors = await getAllMonitors();
   const windows = await getAllWindowsWithTabs();
-
-  return map_monitorsAndWindows(monitors, windows);
-};
-const displayWindows = async () => {
-  const monitersWithWindows = await mapMonitorsAndWindows();
+  const monitersWithWindows = await mapMonitorsAndWindows(monitors, windows);
   view_windows(containerElm, monitersWithWindows);
 };
 const removePopupPanels = async () => {
@@ -38,61 +30,25 @@ const removePopupPanels = async () => {
     });
   }
 };
-const createTabsMap = async (tabs) => {
-  const tabGroups = new Map<string, chrome.tabs.Tab[]>();
 
-  _.forEach(tabs, async (tab) => {
-    const domain = getDomain(tab.url);
-
-    if (!tabGroups.has(domain)) {
-      tabGroups.set(domain, []);
-    }
-    tabGroups.get(domain).push(tab);
-  });
-  return tabGroups;
-};
-const getCurrentWindowTabs = async () => {
-  const currentWindow = await chrome.windows.getCurrent({ populate: true });
-  return currentWindow.tabs;
-};
-const getTabGroups = async (tabs: chrome.tabs.Tab[]) => {
-  const tabGroupsMap = new Map<number, chrome.tabs.Tab[]>();
-
-  _.forEach(tabs, (tab) => {
-    if (!tabGroupsMap.has(tab.groupId)) {
-      tabGroupsMap.set(tab.groupId, []);
-    }
-    tabGroupsMap.get(tab.groupId).push(tab);
-  });
-
-  const groups = [];
-  const tabGroupIds = Array.from(tabGroupsMap.keys()).filter((id) => id > 0);
-  for (const groupId of tabGroupIds) {
-    const group = await chrome.tabGroups.get(groupId);
-    _.set(group, "tabs", tabGroupsMap.get(groupId));
-    groups.push(group);
-  }
-
-  return groups;
-};
-const getTabs = async () => {
+const logTabs = async () => {
   const tabs = await getCurrentWindowTabs();
   console.log(tabs);
 
   const existingGroups = await getTabGroups(tabs);
   console.log(existingGroups);
 
-  const tabGroups = await createTabsMap(tabs);
+  const tabGroups = await groupTabsByDomain(tabs);
   console.log(tabGroups);
 };
 const sortTabs = async () => {
   const tabs = await getCurrentWindowTabs();
 
-  const tabGroups = await createTabsMap(tabs);
+  const tabGroups = await groupTabsByDomain(tabs);
 
   tabGroups.forEach((tg, __) => {
-    _.forEach(tg, (tgg) => {
-      chrome.tabs.move(tgg.id, { index: -1 });
+    _.forEach(tg, async (tgg) => {
+      await moveTab(tgg.id);
     });
   });
 };
@@ -101,28 +57,29 @@ const ungroupTabs = async () => {
 
   // ungroup all tabs
   if (!_.isEmpty(tabs)) {
-    await chrome.tabs.ungroup(
-      tabs.filter((tab) => tab.groupId > 0).map((tab) => tab.id)
+    await groupTabs(
+      tabs.filter((tab) => tab.groupId > 0).map((tab) => tab.id),
+      false
     );
   }
 };
-const groupTabs = async () => {
+const arrangeTabs = async () => {
   const tabs = await getCurrentWindowTabs();
 
   // ungroup all tabs
   if (!_.isEmpty(tabs)) {
     const tabIds = tabs.filter((tab) => tab.groupId > 0).map((tab) => tab.id);
     if (!_.isEmpty(tabIds)) {
-      await chrome.tabs.ungroup(tabIds);
+      await groupTabs(tabIds, false);
     }
   }
 
   await sortTabs();
 
-  const tabGroups = await createTabsMap(tabs);
+  const tabGroups = await groupTabsByDomain(tabs);
   tabGroups.forEach(async (tbs) => {
     if (tbs.length > 1) {
-      await chrome.tabs.group({ tabIds: _.map(tbs, "id") });
+      await groupTabs(_.map(tbs, "id"));
     }
   });
 
@@ -132,21 +89,23 @@ const groupTabs = async () => {
   console.log(existingGroups);
   _.forEach(existingGroups, async (group) => {
     if (group.id > 0) {
-      await chrome.tabGroups.update(group.id, { collapsed: true });
+      await collapseTabGroup(group.id);
     }
   });
 
   newTabs.forEach(async (t) => {
     if (t.groupId === -1) {
-      await chrome.tabs.move(t.id, { index: -1 });
+      await moveTab(t.id);
     }
   });
 };
 const mergeToCurrentWindows = async () => {
-  const currentWindow = await chrome.windows.getCurrent({ populate: true });
+  const currentWindow = await getCurrentWindow(true);
   currentWindow.id;
 
-  const monitersWithWindows = await mapMonitorsAndWindows();
+  const monitors = await getAllMonitors();
+  const windows = await getAllWindowsWithTabs();
+  const monitersWithWindows = await mapMonitorsAndWindows(monitors, windows);
   await _.forEach(monitersWithWindows, async (mw) => {
     if (!_.isEmpty(mw.windows)) {
       await _.forEach(mw.windows, async (win) => {
@@ -157,10 +116,7 @@ const mergeToCurrentWindows = async () => {
 
           await _.forEach(otherWindows, async (ow) => {
             await _.forEach(ow.tabs, async (owt) => {
-              await chrome.tabs.move(owt.id, {
-                windowId: currentWindow.id,
-                index: -1,
-              });
+              await moveTab(owt.id, currentWindow.id);
             });
           });
         }
@@ -170,27 +126,11 @@ const mergeToCurrentWindows = async () => {
   await sortTabs();
 };
 
+
+
 // ACTIONS
 
 const actions: Action[] = [
-  {
-    id: "getAllMonitors",
-    name: "getAllMonitors",
-    disable: true,
-    callback: getAllMonitors,
-  },
-  {
-    id: "getAllWindows",
-    name: "getAllWindows",
-    disable: true,
-    callback: getAllWindowsWithTabs,
-  },
-  {
-    id: "mapMonitorsAndWindows",
-    name: "mapMonitorsAndWindows",
-    disable: true,
-    callback: mapMonitorsAndWindows,
-  },
   {
     id: "displayWindows",
     name: "displayWindows",
@@ -202,9 +142,9 @@ const actions: Action[] = [
     callback: removePopupPanels,
   },
   {
-    id: "getTabs",
-    name: "getTabs",
-    callback: getTabs,
+    id: "logTabs",
+    name: "logTabs",
+    callback: logTabs,
   },
   {
     id: "sortTabs",
@@ -218,9 +158,9 @@ const actions: Action[] = [
     callback: ungroupTabs,
   },
   {
-    id: "groupTabs",
-    name: "groupTabs",
-    callback: groupTabs,
+    id: "arrangeTabs",
+    name: "arrangeTabs",
+    callback: arrangeTabs,
   },
   {
     id: "mergeToCurrentWindows",
