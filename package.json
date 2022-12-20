@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build --sourcemap=true",
-    "build-ext": "yarn build && cp manifest.json dist/",
+    "build-ext": "npm run build && cp manifest.json dist/",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@types/psl": "^1.1.0",
+    "firebase": "^9.15.0",
     "lodash": "^4.17.21",
     "psl": "^1.9.0"
   }

@@ -1,9 +1,12 @@
 import * as _ from "lodash";
 import { collapseTabGroup, groupTabs, moveTab } from "./api/tabs";
 import { getCurrentWindow, removeWindowId } from "./api/windows";
+import { initFirebase } from "./firebase";
+import { readData } from "./firebase/database";
 import "./style.css";
 import { Action, view_actions } from "./ui/actions";
 import { view_windows } from "./ui/windows";
+import { createBookmarkFromTab, getFolderByTitle } from "./util/bookmark-utils";
 import {
   getCurrentWindowTabs,
   getTabGroups,
@@ -15,6 +18,18 @@ import {
   getAllWindowsWithTabs,
   mapMonitorsAndWindows,
 } from "./util/window-utils";
+
+const firebase = initFirebase();
+
+const firebaseFSTest = async () => {
+  const response = await readData(firebase, [], false);
+  console.log(response);
+};
+
+const firebaseDBTest = async () => {
+  const response = await readData(firebase, [], true);
+  console.log(response);
+};
 
 const displayWindows = async () => {
   const monitors = await getAllMonitors();
@@ -126,7 +141,25 @@ const mergeToCurrentWindows = async () => {
   await sortTabs();
 };
 
+const backupWindow = async () => {
+  const currentTabs = await getCurrentWindowTabs();
+  // const
 
+  // const bookmarks = [];
+  for (const tab of currentTabs) {
+    try {
+      await createBookmarkFromTab(tab, "__BACKUP__");
+    } catch (e) {
+      console.log(e);
+    }
+    // bookmarks.push(bookmark);
+  }
+
+  // console.log(bookmarks);
+};
+const createRootBookmarkFolder = async () => {
+  await getFolderByTitle("vim");
+};
 
 // ACTIONS
 
@@ -166,6 +199,26 @@ const actions: Action[] = [
     id: "mergeToCurrentWindows",
     name: "mergeToCurrentWindows",
     callback: mergeToCurrentWindows,
+  },
+  {
+    id: "backupWindow",
+    name: "backupWindow",
+    callback: backupWindow,
+  },
+  {
+    id: "createRootBookmarkFolder",
+    name: "createRootBookmarkFolder",
+    callback: createRootBookmarkFolder,
+  },
+  {
+    id: "firebaseFSTest",
+    name: "firebaseFSTest",
+    callback: firebaseFSTest,
+  },
+  {
+    id: "firebaseDBTest",
+    name: "firebaseDBTest",
+    callback: firebaseDBTest,
   },
 ];
 
