@@ -40,10 +40,19 @@ h1 {
 .actions-container {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 2px;
 }
 
-.actions-container button {
+.actions-container .actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.actions-row button {
+  width: 100%;
   background-color: #535bf2;
 }
 

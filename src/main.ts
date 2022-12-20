@@ -6,7 +6,7 @@ import { readData } from "./firebase/database";
 import "./style.css";
 import { Action, view_actions } from "./ui/actions";
 import { view_windows } from "./ui/windows";
-import { createBookmarkFromTab, getFolderByTitle } from "./util/bookmark-utils";
+import { createBookmarkFromTab } from "./util/bookmark-utils";
 import {
   getCurrentWindowTabs,
   getTabGroups,
@@ -157,13 +157,10 @@ const backupWindow = async () => {
 
   // console.log(bookmarks);
 };
-const createRootBookmarkFolder = async () => {
-  await getFolderByTitle("vim");
-};
 
 // ACTIONS
 
-const actions: Action[] = [
+const actions: (Action | Action[])[] = [
   {
     id: "displayWindows",
     name: "displayWindows",
@@ -174,52 +171,55 @@ const actions: Action[] = [
     name: "removePopupPanels",
     callback: removePopupPanels,
   },
-  {
-    id: "logTabs",
-    name: "logTabs",
-    callback: logTabs,
-  },
-  {
-    id: "sortTabs",
-    name: "sortTabs",
-    disable: true,
-    callback: sortTabs,
-  },
-  {
-    id: "ungroupTabs",
-    name: "ungroupTabs",
-    callback: ungroupTabs,
-  },
-  {
-    id: "arrangeTabs",
-    name: "arrangeTabs",
-    callback: arrangeTabs,
-  },
-  {
-    id: "mergeToCurrentWindows",
-    name: "mergeToCurrentWindows",
-    callback: mergeToCurrentWindows,
-  },
-  {
-    id: "backupWindow",
-    name: "backupWindow",
-    callback: backupWindow,
-  },
-  {
-    id: "createRootBookmarkFolder",
-    name: "createRootBookmarkFolder",
-    callback: createRootBookmarkFolder,
-  },
-  {
-    id: "firebaseFSTest",
-    name: "firebaseFSTest",
-    callback: firebaseFSTest,
-  },
-  {
-    id: "firebaseDBTest",
-    name: "firebaseDBTest",
-    callback: firebaseDBTest,
-  },
+  [
+    {
+      id: "logTabs",
+      name: "logTabs",
+      callback: logTabs,
+    },
+    {
+      id: "sortTabs",
+      name: "sortTabs",
+      disable: true,
+      callback: sortTabs,
+    },
+  ],
+  [
+    {
+      id: "ungroupTabs",
+      name: "ungroupTabs",
+      callback: ungroupTabs,
+    },
+    {
+      id: "arrangeTabs",
+      name: "arrangeTabs",
+      callback: arrangeTabs,
+    },
+  ],
+  [
+    {
+      id: "mergeToCurrentWindows",
+      name: "mergeToCurrentWindows",
+      callback: mergeToCurrentWindows,
+    },
+    {
+      id: "backupWindow",
+      name: "backupWindow",
+      callback: backupWindow,
+    },
+  ],
+  [
+    {
+      id: "firebaseFSTest",
+      name: "firebaseFSTest",
+      callback: firebaseFSTest,
+    },
+    {
+      id: "firebaseDBTest",
+      name: "firebaseDBTest",
+      callback: firebaseDBTest,
+    },
+  ],
 ];
 
 // DOM
