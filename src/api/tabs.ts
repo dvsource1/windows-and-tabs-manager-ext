@@ -1,10 +1,18 @@
 import * as _ from "lodash";
+import { getCurrentWindowTabs } from "../util/tab-utils";
 
 export type Tab = chrome.tabs.Tab;
 export type TabGroup = chrome.tabGroups.TabGroup;
 export type UpdateProperties = chrome.tabGroups.UpdateProperties;
 export type GroupOption = UpdateProperties & {
   windowId?: number;
+};
+
+export const getCurrentTab = async (): Promise<Tab | undefined> => {
+  // return await chrome.tabs.getCurrent();
+
+  const allTabs = await getCurrentWindowTabs();
+  return !_.isEmpty(allTabs) ? _.find(allTabs, { active: true }) : undefined;
 };
 
 export const moveTab = async (

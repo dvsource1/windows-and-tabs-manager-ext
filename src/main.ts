@@ -1,5 +1,10 @@
 import * as _ from "lodash";
-import { collapseTabGroup, groupTabs, moveTab } from "./api/tabs";
+import {
+  collapseTabGroup,
+  getCurrentTab,
+  groupTabs,
+  moveTab,
+} from "./api/tabs";
 import { getCurrentWindow, removeWindowId } from "./api/windows";
 import { initFirebase } from "./firebase";
 import { readData } from "./firebase/database";
@@ -158,6 +163,70 @@ const backupWindow = async () => {
   // console.log(bookmarks);
 };
 
+const notifictaionTest = async () => {
+  const options: chrome.notifications.NotificationOptions<true> = {
+    iconUrl: "../icon32.png",
+    title: "Title",
+    message: "Hi Mom!",
+    contextMessage: "lorem ipsum",
+    type: "basic",
+    requireInteraction: true,
+    buttons: [{ title: "Save" }, { title: "Cancel" }],
+  };
+  chrome.notifications.create("TEST", options);
+
+  chrome.notifications.onButtonClicked.addListener((e, i) => {
+    console.log("onButtonClicked", e, i);
+  });
+};
+
+const updateNotification = async () => {
+  const options: chrome.notifications.NotificationOptions<true> = {
+    iconUrl: "../icon32.png",
+    title: "Title",
+    message: "Hi Mom!",
+    contextMessage: "lorem ipsum",
+    type: "list",
+    buttons: [{ title: "Save" }, { title: "Cancel" }],
+    requireInteraction: false,
+    items: [
+      { title: "Sub Item 1", message: "Sum item content 1111" },
+      { title: "Sub Item 2", message: "Sum item content 2222222" },
+    ],
+  };
+  chrome.notifications.update("TEST", options);
+
+  chrome.notifications.onClosed.addListener((e, u) =>
+    console.log("onClosed", e, u)
+  );
+  chrome.notifications.onClicked.addListener((e) =>
+    console.log("onClicked", e)
+  );
+};
+
+const accessDOM = async () => {
+  const currentTab = await getCurrentTab();
+
+  if (!_.isNil(currentTab)) {
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: currentTab.id, allFrames: true },
+        func: () => {
+          return document.getSelection
+            ? document.getSelection().toString()
+            : null;
+        },
+      },
+      (injectionResults) => {
+        for (const frameResult of injectionResults)
+          console.log("Frame Title: ", frameResult.result);
+      }
+    );
+  } else {
+    console.log("no current tab");
+  }
+};
+
 // ACTIONS
 
 const actions: (Action | Action[])[] = [
@@ -183,8 +252,6 @@ const actions: (Action | Action[])[] = [
       disable: true,
       callback: sortTabs,
     },
-  ],
-  [
     {
       id: "ungroupTabs",
       name: "ungroupTabs",
@@ -220,6 +287,23 @@ const actions: (Action | Action[])[] = [
       callback: firebaseDBTest,
     },
   ],
+  [
+    {
+      id: "notifictaionTest",
+      name: "notifictaionTest",
+      callback: notifictaionTest,
+    },
+    {
+      id: "updateNotification",
+      name: "updateNotification",
+      callback: updateNotification,
+    },
+  ],
+  {
+    id: "accessDOM",
+    name: "accessDOM",
+    callback: accessDOM,
+  },
 ];
 
 // DOM

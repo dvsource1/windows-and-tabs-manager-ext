@@ -1,14 +1,14 @@
 import * as _ from "lodash";
 import { getDomain } from ".";
-import { getTabGroup, Tab } from "../api/tabs";
+import { getTabGroup, Tab, TabGroup } from "../api/tabs";
 import { getCurrentWindow } from "../api/windows";
 
-export const getCurrentWindowTabs = async () => {
+export const getCurrentWindowTabs = async (): Promise<Tab[]> => {
   const currentWindow = await getCurrentWindow(true);
   return currentWindow.tabs;
 };
 
-export const groupTabsByDomain = (tabs) => {
+export const groupTabsByDomain = (tabs): Map<string, Tab[]> => {
   const tabGroups = new Map<string, Tab[]>();
 
   _.forEach(tabs, (tab) => {
@@ -22,7 +22,7 @@ export const groupTabsByDomain = (tabs) => {
   return tabGroups;
 };
 
-export const getTabGroups = async (tabs: Tab[]) => {
+export const getTabGroups = async (tabs: Tab[]): Promise<TabGroup[]> => {
   const tabGroupsMap = new Map<number, Tab[]>();
 
   _.forEach(tabs, (tab) => {
