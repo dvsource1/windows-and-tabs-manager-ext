@@ -6,6 +6,7 @@ import {
   moveTab,
 } from "./api/tabs";
 import { getCurrentWindow, removeWindowId } from "./api/windows";
+import { EventHandler } from "./core/evenr-handler";
 import { initFirebase } from "./firebase";
 import { readData } from "./firebase/database";
 import "./style.css";
@@ -227,84 +228,63 @@ const accessDOM = async () => {
   }
 };
 
+const saveLayout = async () => {};
+
+const restoreLayout = async () => {};
+
 // ACTIONS
 
 const actions: (Action | Action[])[] = [
-  {
-    id: "displayWindows",
-    name: "displayWindows",
-    callback: displayWindows,
-  },
-  {
-    id: "removePopupPanels",
-    name: "removePopupPanels",
-    callback: removePopupPanels,
-  },
+  { id: "displayWindows", name: "displayWindows", callback: displayWindows },
+  { id: "removePopup", name: "removePopup", callback: removePopupPanels },
   [
-    {
-      id: "logTabs",
-      name: "logTabs",
-      callback: logTabs,
-    },
-    {
-      id: "sortTabs",
-      name: "sortTabs",
-      disable: true,
-      callback: sortTabs,
-    },
-    {
-      id: "ungroupTabs",
-      name: "ungroupTabs",
-      callback: ungroupTabs,
-    },
-    {
-      id: "arrangeTabs",
-      name: "arrangeTabs",
-      callback: arrangeTabs,
-    },
+    { id: "logTabs", name: "logTabs", callback: logTabs },
+    { id: "sortTabs", name: "sortTabs", disable: true, callback: sortTabs },
+    { id: "ungroupTabs", name: "ungroupTabs", callback: ungroupTabs },
+    { id: "arrangeTabs", name: "arrangeTabs", callback: arrangeTabs },
   ],
   [
-    {
-      id: "mergeToCurrentWindows",
-      name: "mergeToCurrentWindows",
-      callback: mergeToCurrentWindows,
-    },
-    {
-      id: "backupWindow",
-      name: "backupWindow",
-      callback: backupWindow,
-    },
+    { id: "mergeToCur", name: "mergeToCur", callback: mergeToCurrentWindows },
+    { id: "backupWindow", name: "backupWindow", callback: backupWindow },
   ],
   [
-    {
-      id: "firebaseFSTest",
-      name: "firebaseFSTest",
-      callback: firebaseFSTest,
-    },
-    {
-      id: "firebaseDBTest",
-      name: "firebaseDBTest",
-      callback: firebaseDBTest,
-    },
+    { id: "firebaseFS", name: "firebaseFS", callback: firebaseFSTest },
+    { id: "firebaseDB", name: "firebaseDB", callback: firebaseDBTest },
   ],
   [
-    {
-      id: "notifictaionTest",
-      name: "notifictaionTest",
-      callback: notifictaionTest,
-    },
-    {
-      id: "updateNotification",
-      name: "updateNotification",
-      callback: updateNotification,
-    },
+    { id: "notifictaion", name: "notifictaion", callback: notifictaionTest },
+    { id: "updateNotif", name: "updateNotif", callback: updateNotification },
   ],
-  {
-    id: "accessDOM",
-    name: "accessDOM",
-    callback: accessDOM,
-  },
+  { id: "accessDOM", name: "accessDOM", disable: true, callback: accessDOM },
+  [
+    { id: "saveLayout", name: "saveLayout", callback: saveLayout },
+    { id: "restoreLayout", name: "restoreLayout", callback: restoreLayout },
+  ],
 ];
+
+// Event Handlers
+
+const unrEventCallback =
+  (key) =>
+  (...eargs) => {
+    console.log(key, eargs);
+  };
+
+EventHandler.register(
+  "windows.onBoundsChanged",
+  unrEventCallback("windows.onBoundsChanged")
+);
+EventHandler.register(
+  "windows.onFocusChanged",
+  unrEventCallback("windows.onFocusChanged")
+);
+EventHandler.register("tabs.onMoved", unrEventCallback("tabs.onMoved"));
+EventHandler.register("tabs.onCreated", unrEventCallback("tabs.onCreated"));
+EventHandler.register("tabs.onRemoved", unrEventCallback("tabs.onRemoved"));
+EventHandler.register("tabs.onReplaced", unrEventCallback("tabs.onReplaced"));
+EventHandler.register("tabs.onDetached", unrEventCallback("tabs.onDetached"));
+
+EventHandler.listen();
 
 // DOM
 
